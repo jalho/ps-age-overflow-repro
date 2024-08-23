@@ -49,9 +49,11 @@ fn main() {
             assert_eq!(
                 stdout_u64 < 60, // process' reported age in seconds
                 true,
-                "got age {}s at attempt #{}",
+                "got age {}s for pid {} at attempt #{} -- all used pids at this point: {}",
                 stdout_u64,
+                pid,
                 attempt + 1,
+                pids.iter().flatten().map(|n| { n.to_string() }).collect::<Vec<String>>().join(", "),
             );
         }
     }
