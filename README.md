@@ -51,3 +51,16 @@ external command `kill`). Each subsequent attempt to reproduce the issue starts
 with the kill command so the process' age is expected to always be close to 0.
 The issue is that sometimes the age is reported to be 4123168608, which is a
 little over four billion, hence the hint of an overflow in the title.
+
+**N.B.:** This demo does not reproduce the issue consistently. On my system the
+issue sometimes occurs on every run of the demo and then no longer occurs for
+whatever reason when I try to run the demo a bit later. When the demo fails to
+reproduce the issue, it prints something like the following:
+
+```
+ ./main
+Attempted 100 times but couldn't reproduce the issue! PIDS used by executable './foo': 139415, 139420, 139426, 139433, 139441, 139450, 139460, 139471, 139483, 139496, 139510, 139525, 139541, 139558, 139576, 139595, 139615, 139636, 139658, 139681, 139705, 139739, 139788, 139815, 139844, 139873, 139903, 139934, 139966, 139999, 140081, 140116, 140152, 140189, 140227, 140266, 140306, 140347, 140389, 140432, 140476, 140521, 140567, 140614, 140662, 140711, 140761, 140812, 140864, 140917, 141032, 141087, 141143, 141200, 141268, 141423, 141483, 141544, 141606, 141669, 141733, 141798, 141864, 141931, 141999, 142068, 142138, 142209, 142281, 142354, 142428, 142503, 142579, 142656, 142734, 142817, 142897, 142978, 143060, 143143, 143227, 143312, 143398, 143485, 143573, 143662, 143752, 143843, 143935, 144028, 144122, 144217, 144313, 144410, 144508, 144607, 144707, 144808, 144910, 145013
+```
+
+**N.B.:** On my system when the issue occurs the curious process age seems to
+always be exactly 4123168608.
