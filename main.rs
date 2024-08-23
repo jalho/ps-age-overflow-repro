@@ -29,7 +29,7 @@ fn main() {
         let pid_foo = rx.recv().expect("cannot receive id of process './foo'");
         pids[attempt] = Some(pid_foo);
 
-        for &pid in pids.iter().flatten() {
+        for &pid in pids.iter().flatten().rev() {
             let output = Command::new("ps")
                 .args(["-o", "etimes=", "-p", &pid.to_string()])
                 .stdout(Stdio::piped())
@@ -40,8 +40,14 @@ fn main() {
             let stdout_u64 = stdout_trimmed
                 .parse::<u64>()
                 .expect(&format!("cannot parse stdout as u64: \"{}\"", stdout_utf8));
+
+            /*
+              Looking for a process whose age is reported to be way too long
+              (4123168608 seconds to be exact, but let's say anything at around
+              a minute or more shall trigger the assertion failure).
+            */
             assert_eq!(
-                stdout_u64 < 60,
+                stdout_u64 < 60, // process' reported age in seconds
                 true,
                 "got age {}s at attempt #{}",
                 stdout_u64,
