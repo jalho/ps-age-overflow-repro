@@ -24,6 +24,28 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 real    0m0.005s
 user    0m0.005s
 sys     0m0.000s
+
+$ time ./main
+thread 'main' panicked at main.rs:49:13:
+assertion `left == right` failed: got age 4123168608s at attempt #8
+  left: false
+ right: true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+real    0m0.131s
+user    0m0.049s
+sys     0m0.081s
+
+$ time ./main
+thread 'main' panicked at main.rs:49:13:
+assertion `left == right` failed: got age 4123168608s at attempt #6
+  left: false
+ right: true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+real    0m0.074s
+user    0m0.035s
+sys     0m0.039s
 ```
 
 The demo repeatedly starts a process from executable [`./foo`](./foo), reads its
