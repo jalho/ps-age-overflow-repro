@@ -3,27 +3,19 @@ use std::sync::*;
 use std::thread::*;
 
 fn main() {
-    let mut attempts = 0;
-    let pid_foo: Option<u32> = None;
+    const ATTEMPTS: usize = 100;
+    let mut pids: [Option<u32>; ATTEMPTS] = [None; ATTEMPTS];
 
-    loop {
+    for attempt in 0..=ATTEMPTS - 1 {
         let (tx, rx) = mpsc::channel::<u32>();
 
-        if attempts >= 100 {
-            break;
-        }
-        attempts += 1;
-
-        match pid_foo {
-            Some(pid) => {
-                _ = Command::new("kill")
-                    .arg(&pid.to_string())
-                    .spawn()
-                    .expect("cannot not spawn process 'kill'")
-                    .wait()
-                    .expect("cannot wait for termination of process 'kill'");
-            }
-            None => {}
+        if attempt != 0 {
+            _ = Command::new("kill")
+                .arg(&pids[attempt - 1].unwrap().to_string())
+                .spawn()
+                .expect("cannot not spawn process 'kill'")
+                .wait()
+                .expect("cannot wait for termination of process 'kill'");
         }
 
         spawn(move || {
@@ -34,28 +26,24 @@ fn main() {
             let pid = process_foo.id();
             tx.send(pid).expect("cannot send id of process './foo'");
         });
-        let pid_foo = Some(rx.recv().expect("cannot receive id of process './foo'"));
+        let pid_foo = rx.recv().expect("cannot receive id of process './foo'");
+        pids[attempt] = Some(pid_foo);
 
-        match pid_foo {
-            Some(pid) => {
-                let output = Command::new("ps")
-                    .args(["-o", "etimes=", "-p", &pid.to_string()])
-                    .stdout(Stdio::piped())
-                    .output()
-                    .expect("cannot get output of process 'ps'");
-                assert_eq!(
-                    String::from_utf8_lossy(&output.stdout),
-                    "      0\n",
-                    "at attempt #{}",
-                    attempts
-                );
-            }
-            None => {}
-        }
+        let output = Command::new("ps")
+            .args(["-o", "etimes=", "-p", &pid_foo.to_string()])
+            .stdout(Stdio::piped())
+            .output()
+            .expect("cannot get output of process 'ps'");
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout),
+            "      0\n",
+            "at attempt #{}",
+            attempt + 1
+        );
     }
 
     println!(
-        "Attempted {} times but couldn't reproduce the issue!",
-        attempts
+        "Attempted {} times but couldn't reproduce the issue! PIDS used by executable './foo': {:?}",
+        ATTEMPTS, pids
     );
 }
