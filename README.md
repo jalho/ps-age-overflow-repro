@@ -1,3 +1,7 @@
+resolved in https://gitlab.com/procps-ng/procps/-/issues/346
+
+---
+
 # ps age overflow
 
 Sometimes `ps` reports a right before launched process' age to be 4123168608
